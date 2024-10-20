@@ -1,8 +1,7 @@
-Here’s a detailed example of a `README.md` file for your ToDo App project, with sections for running both the front-end and back-end locally, explanations of technologies and libraries, and development challenges/decisions:
 
-# ToDo App
+# Notekeeper
 
-A simple, yet powerful ToDo app for task management, built with a React.js front-end and Node.js/Express back-end. The app allows users to create, edit, delete, and mark tasks as completed. It uses MongoDB as the database to store tasks.
+A simple, yet powerful ToDo app for task management, built with a React.js, TailwindCSS front-end and Node.js/Express back-end. The app allows users to create, edit, delete, and mark tasks as completed. It uses MongoDB as the database to store tasks.
 
 ---
 
