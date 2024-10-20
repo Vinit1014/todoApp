@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import Navbar from '../../components/Navbar';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PasswordInput from '../../components/PasswordInput';
-import { validateSignUp } from '../../utils/helper';  // Assuming similar validation function for SignUp
+import { validateSignUp } from '../../utils/helper'; 
+import axiosInstance from '../../utils/axiosInstance';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -10,14 +11,14 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState({ name: null, email: null, password: null });
 
+  const navigate = useNavigate();
+  
   const handleSignUp = async (e) => {
     e.preventDefault();
 
-    // Validate form input
     const { success, errors } = validateSignUp({ name, email, password });
 
     if (!success) {
-      // Set specific errors for each field
       const fieldErrors = { name: null, email: null, password: null };
       errors.forEach((err) => {
         if (err.includes('Name')) {
@@ -33,9 +34,26 @@ const SignUp = () => {
       setError(fieldErrors);
       return;
     }
-
-    // Proceed with sign-up logic here
     console.log('Form is valid. Proceed with sign-up.');
+
+    try {
+      const response = await axiosInstance.post('/api/users/register', {
+        fullName: name,
+        email: email,
+        password: password,
+      });
+
+      if (response.data && response.data.token) {
+        localStorage.setItem('token', response.data.token); // Store token if returned
+        navigate('/dashboard'); // Redirect to dashboard after successful sign-up
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        setError({ name: null, email: null, password: error.response.data.message }); // Handle specific errors
+      } else {
+        setError({ name: null, email: null, password: 'An unexpected error occurred. Please try again' });
+      }
+    }
   };
 
   return (

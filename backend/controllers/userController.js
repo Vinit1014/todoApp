@@ -1,14 +1,12 @@
-// controllers/userController.js
+
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-// Generate JWT Token
 const generateToken = (user) => {
   return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
-// Register a new user
 exports.registerUser = async (req, res) => {
   const { fullName, email, password } = req.body;
   try {
@@ -22,29 +20,56 @@ exports.registerUser = async (req, res) => {
     await user.save();
 
     const token = generateToken(user);
-    res.status(201).json({ token });
+    return res.status(201).json({ 
+        error: false,
+        user,
+        token,
+        message: "Registration Successful" 
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error registering user', error });
+    return res.status(500).json({ message: 'Error registering user', error });
   }
 };
 
-// Login user
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'User not found' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ error:true, message: 'Invalid credentials' });
     }
 
     const token = generateToken(user);
-    res.json({ token });
+    return res.json({ 
+        error: false,
+        message: "Login successful",
+        email,
+        token 
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error });
   }
+};
+
+exports.getUserInfo = async (req, res) => {
+    const userId = req.user.id; 
+    
+    try {
+      const isUser = await User.findOne({ _id: userId }); 
+      if (!isUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      return res.status(200).json({ 
+        error: false,
+        user: {fullName: isUser.fullName, email: isUser.email, id: isUser._id},
+      });
+    } catch (error) {
+      return res.status(500).json({ message: 'Error fetching user info', error });
+    }
 };
