@@ -13,8 +13,6 @@ const Home = () => {
         data: null,
     });
 
-
-
   return (
     <>
         <Navbar/>
