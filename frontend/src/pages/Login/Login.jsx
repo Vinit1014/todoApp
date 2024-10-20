@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import Navbar from '../../components/Navbar';
 import { Link, useNavigate } from 'react-router-dom';
 import PasswordInput from '../../components/PasswordInput';
-import { validateLogin } from '../../utils/helper';  // Import validation function
+import { validateLogin } from '../../utils/helper';  
 import axiosInstance from '../../utils/axiosInstance';
+import { toast } from 'sonner';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -13,12 +14,9 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    // Validate form input
     const { success, errors } = validateLogin({ email, password });
     
     if (!success) {
-      // Set specific errors for each field
       const fieldErrors = { email: null, password: null };
       errors.forEach((err) => {
         if (err.includes('Email')) {
@@ -32,8 +30,6 @@ const Login = () => {
       return;
     }
 
-
-    // Proceed with login logic here
     console.log('Form is valid. Proceed with login.');
     try{
       const response = await axiosInstance.post("/api/users/login",{
@@ -43,16 +39,18 @@ const Login = () => {
 
       if (response.data && response.data.token){
         localStorage.setItem("token", response.data.token)
+        toast.success('Login successful! Redirecting to dashboard...');
         navigate('/dashboard')
       }
     }catch(error){
       if (error.response && error.response.data && error.response.data.message){
         setError(error.response.data.message);
+        toast.error('Login failed: ' + error.response.data.message);
       }else{
         setError("An unexpected error occured. Please try again");
+        toast.error('An unexpected error occurred. Please try again.'); 
       }
     }
-
 
   };
 

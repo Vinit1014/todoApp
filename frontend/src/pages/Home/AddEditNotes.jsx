@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../utils/axiosInstance';
+import { toast } from 'sonner';
 
 const AddEditNotes = ({ noteData, type, onClose, getAllNotes, userId }) => {
   const [title, setTitle] = useState(noteData?.title || '');
@@ -18,42 +19,35 @@ const AddEditNotes = ({ noteData, type, onClose, getAllNotes, userId }) => {
         content,
         userId,
       });
-
+  
       if (response.data && response.data.task) {
         getAllNotes();
         onClose();
+        toast.success('Task added successfully');
       }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          server: error.response.data.message,
-        }));
-      }
+      toast.error('Failed to add the task. Please try again.');
     }
   };
-
-  const editNote = async() => {
+  
+  const editNote = async () => {
     const noteId = noteData?._id;
     try {
-      const response = await axiosInstance.put('/api/tasks/'+noteId, {
+      const response = await axiosInstance.put('/api/tasks/' + noteId, {
         title,
         content,
       });
-
+  
       if (response.data && response.data.task) {
         getAllNotes();
         onClose();
+        toast.success('Task updated successfully'); 
       }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          server: error.response.data.message,
-        }));
-      }
+      toast.error('Failed to update the task. Please try again.'); 
     }
   };
+  
 
   const handleNoteSubmit = () => {
     let newErrors = {};

@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import axiosInstance from '../../utils/axiosInstance'
 import EmptyCard from '../../components/EmptyCard'
 import MyNote from "../../assets/add-note.svg";
+import { toast } from 'sonner';
 
 const Home = () => {
 
@@ -54,34 +55,33 @@ const Home = () => {
     const deleteNote = async (data) => {
         const noteId = data?._id;
         try {
-            const response = await axiosInstance.delete('/api/tasks/'+noteId);
-      
+            const response = await axiosInstance.delete('/api/tasks/' + noteId);
             if (response.data && !response.data.error) {
-              getAllNotes(userInfo.id);
+                getAllNotes(userInfo.id);
+                toast.success('Task deleted successfully'); 
             }
         } catch (error) {
-            if (error.response && error.response.data && error.response.data.message) {
-              console.log("Error occured");
-            }
+            toast.error('Failed to delete the task. Please try again.'); 
         }
     };
+      
 
-    const updateIsCompleted = async(data)=>{
+    const updateIsCompleted = async (data) => {
         const noteId = data?._id;
         try {
-            const response = await axiosInstance.put('/api/tasks/'+noteId,{
-                isCompleted: !data.isCompleted,
-            });
+          const response = await axiosInstance.put('/api/tasks/' + noteId, {
+            isCompleted: !data.isCompleted,
+          });
       
-            if (response.data && !response.data.error) {
-              getAllNotes(userInfo.id);
-            }
+          if (response.data && !response.data.error) {
+            getAllNotes(userInfo.id);
+            toast.success(data.isCompleted ? 'Task marked as incomplete' : 'Task marked as complete'); 
+          }
         } catch (error) {
-            if (error.response && error.response.data && error.response.data.message) {
-              console.log("Error occured in this");
-            }
+          toast.error('Failed to update the task. Please try again.'); 
         }
-    }
+    };
+      
     
     useEffect(()=>{
         if (userInfo?.id) {

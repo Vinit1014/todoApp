@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import PasswordInput from '../../components/PasswordInput';
 import { validateSignUp } from '../../utils/helper'; 
 import axiosInstance from '../../utils/axiosInstance';
+import { toast } from 'sonner';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -32,6 +33,7 @@ const SignUp = () => {
         }
       });
       setError(fieldErrors);
+      toast.error('Form validation failed.');
       return;
     }
     console.log('Form is valid. Proceed with sign-up.');
@@ -44,14 +46,17 @@ const SignUp = () => {
       });
 
       if (response.data && response.data.token) {
-        localStorage.setItem('token', response.data.token); // Store token if returned
-        navigate('/dashboard'); // Redirect to dashboard after successful sign-up
+        localStorage.setItem('token', response.data.token); 
+        toast.success('Sign-up successful! Redirecting to dashboard...');
+        navigate('/dashboard'); 
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
-        setError({ name: null, email: null, password: error.response.data.message }); // Handle specific errors
+        setError({ name: null, email: null, password: error.response.data.message });
+        toast.error('Sign-up failed: ' + error.response.data.message);
       } else {
         setError({ name: null, email: null, password: 'An unexpected error occurred. Please try again' });
+        toast.error('An unexpected error occurred. Please try again.');
       }
     }
   };
