@@ -19,6 +19,9 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 
+app.get('/',(req,res){
+    res.json("Health OK");
+})
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
